@@ -1,0 +1,40 @@
+Codes for Monte Carlo sampling
+%---Calculations of Mean values and errors of N2O-SP for two endmembers---
+Amean=mean(ab(:,1)); %A: SPND
+Astd=std(ab(:,1));
+Bmean=mean(ab:,2)); %B: SPNN
+Bstd=std(ab(:,2));
+
+%------Main Program-------
+num_sample=40000; %Total stimulations 
+num_sample1=10000;%effective stimulations
+result=zeros(12,4); 
+for nnn=1:12
+num_data=nnn;
+j=1;    
+f12=ones(num_sample1,2);
+%------Random sampling of SP-------
+A=normrnd(Amean,Astd,[1 num_sample]);
+B=normrnd(Bmean,Bstd,[1 num_sample]);
+
+%------Calculations of fND, fND------
+for i=1:num_sample
+H=[1 A(i) B(i)];
+if max(data(num_data,:)*inv(H))<1 && min(data(num_data,:)*inv(H))>-1
+f12(j,:)=data(num_data,:)*inv(H);
+j=j+1;
+end
+if j>num_sample1
+    break
+end
+end
+
+%------Results output-------
+f12mean=mean(f12);
+result(nnn,1:2)=mean(f12);
+result(nnn,3)=sum(sum((f12-f12mean).^2))/(num_sample1-1);
+end
+
+%------Figuring-------
+% hold on
+% for i=1:10000

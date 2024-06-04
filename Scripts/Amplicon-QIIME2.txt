@@ -1,0 +1,40 @@
+awk 'NR==1{print "sample-id\tabsolute-filepath"} \
+      NR>1{print $1"\t$PWD/seq/"$1".515FmodF_806RmodR.fastq.gz"}' \
+      metadata.txt > manifest
+
+qiime tools import \
+      --type 'SampleData[PairedEndSequencesWithQuality]' \
+      --input-path manifest \
+      --output-path paired-demux.qz \
+      --input-format PairedEndFastqManifestPhred33V2
+
+qiime cutadapt trim-paired \
+      --i-demultiplexed-sequences paired-demux.qza \
+      --p-front-f CCTAYGGGRBGCASCAG \
+      --p-front-r GGACTACNNGGGTATCTAAT \
+      --o-trimmed-sequences demux.qza
+
+qiime dada2 denoise-paired \
+	--i-demultiplexed-seqs demux.qza \
+	--p-n-threads 4 \
+	--p-trim-left 0 \
+	--p-trunc-len 0 \
+	--o-table dada2-table.qza \
+	--o-representative-sequences dada2-rep-seqs.qza \
+	--o-denoising-stats denoising-stats.qza
+
+    cp dada2-table.qza table.qza
+    cp dada2-rep-seqs.qza rep-seqs.qza
+
+qiime feature-table summarize \
+      --i-table table.qza \
+      --o-visualization table.qzv \
+      --m-sample-metadata-file metadata.txt
+    qiime feature-table tabulate-seqs \
+      --i-data rep-seqs.qza \
+      --o-visualization rep-seqs.qzv
+	  
+qiime feature-classifier classify-sklearn \
+      --i-classifier silva-138-99-nb-classifier.qza \
+      --i-reads rep-seqs.qza \
+      --o-classification taxonomy.qza

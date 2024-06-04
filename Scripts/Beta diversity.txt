@@ -1,0 +1,36 @@
+rm(list = ls())
+setwd("D:/Nitrification-Plastisphere/Script and data")
+library(vegan)
+library(ggplot2)
+
+otu <- read.delim('ASV_table.txt', row.names = 1, stringsAsFactors = FALSE)
+otu <- data.frame(t(otu))
+group <- read.delim('Group.txt', stringsAsFactors = FALSE)
+
+adonis_group <- adonis(otu ~ group, data = group, distance = 'bray', permutations = 999)
+
+bray_dis <- vegdist(otu, method = 'bray')
+pcoa <- cmdscale(bray_dis, k = 2, eig = TRUE)
+
+pcoa_exp <- pcoa$eig / sum(pcoa$eig)
+pcoa1_label <- paste('PCoA axis1:', round(100 * pcoa_exp[1], 2), '%')
+pcoa2_label <- paste('PCoA axis2:', round(100 * pcoa_exp[2], 2), '%')
+
+site <- data.frame(pcoa$points)
+site$sample <- rownames(site)
+site <- merge(site, group, by = 'sample')
+names(site)[2:3] <- c('pcoa1', 'pcoa2')
+
+p <- ggplot(data = site) +
+  geom_point(aes(x = pcoa1, y = pcoa2, color = group), size = 2) +
+  scale_color_manual(values = c('Plastisphere' = '#e05f5d', 'Seawater' = '#297d9f')) +
+  theme(panel.grid = element_blank(), 
+        panel.background = element_rect(color = 'black', fill = 'transparent'), 
+        axis.line = element_line(color = 'black'), 
+        legend.key = element_blank()) +
+  labs(x = pcoa1_label, y = pcoa2_label, color = '') +
+  annotate('text', label = sprintf('P: %.3f', adonis_group$aov.tab[1, 'Pr(>F)']), x = Inf, y = Inf, hjust = 1.1, vjust = 2.5, size = 3) +
+  annotate('text', label = sprintf('R^2: %.3f', adonis_group$aov.tab[1, 'R2']), x = Inf, y = Inf, hjust = 1.1, vjust = 3.5, size = 3)
+
+print(p)
+

@@ -1,0 +1,14 @@
+AOA%	1	2		AOB	1	2
+Candidatus_Nitrosocosmicus	0.207135909	0.024981018		Nitrosococcus	0.02869959	0
+Nitrosarchaeum	0.127373253	0.00395155		Nitrosomonas	1.131765921	5.642409227
+norank_f__Nitriliruptoraceae	0.626466276	0.096560354		Nitrosopumilus	0	0.007864679
+				Nitrosospira	4.350328608	0.210156518
+NOB	1	2		Nitrosovibrio	1.462577964	0.030600018
+Nitrotoga	0.157952689	3.971907705		Nitrosocosmicus	0.207135909	0.024981018
+Nitrobacter	3.595531209	0.028345522		Nitrosoglobus	0.026898832	0
+Nitrococcus	0.233538923	0.007346		Nitrosotalea	0.313684849	0.134452585
+Nitrolancea	0	0.047388544		COM	1	2
+Nitrospina	0.362244495	0.014822798		Nitrospira_defluvii	1.960025362	0.077802499
+Nitrospira	6.112404516	1.422056029		Nitrospira_sp.	0.113895487	0.005925903
+Nitrospirillum	0	0.279537659		uncultured_Nitrospira_sp.	0.07471536	0.009288428
+

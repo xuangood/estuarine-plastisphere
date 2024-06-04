@@ -1,0 +1,74 @@
+#QC
+mkdir -p QC/trim
+java -jar trimmomatic-0.38.jar PE -threads 2 \
+-phred33 {1}.R1.fastq.gz {1}.R2.fastq.gz \
+QC/trim/{1}.pe.R1.fastq.gz QC/trim/{1}.unpe.R1.fastq.gz QC/trim/{1}.pe.R2.fastq.gz QC/trim/{1}.unpe.R2.fastq.gz \
+LEADING:3 TRAILING:3 SLIDINGWINDOW:5:20 MINLEN:50 \
+ILLUMINACLIP:/db/Trimmomatic-0.38/adapters/TruSeq3-PE.fa:2:30:10
+
+mkdir -p QC/uniq
+realpath QC/trim/{1}.pe* > QC/uniq/{1}.input.fastuniq
+fastuniq -i QC/uniq/{1}.input.fastuniq -t q \
+-o QC/uniq/{1}.uniq.R1.fq -p QC/uniq/{1}.uniq.R2.fq -c 0
+
+mkdir -p QC/report/{1}.fastqc.out
+fastqc -o QC/report/ QC/uniq/{1}.uniq.R1.fq QC/uniq/{1}.uniq.R2.fq
+
+#Assembly
+mkdir -p Assembly/sample
+megahit -t 3 -1 QC/uniq/{1}.uniq.R1.fq -2 QC/uniq/{1}.uniq.R2.fq \
+--out-dir Assembly/sample/{1}.assembly \
+--k-min 35 --k-max 95 --k-step 20 --min-contig-len 500
+
+mkdir -p Assembly/stat
+pileup.sh in=Assembly/unmap/{1}.unused.sam \
+ref=Assembly/sample/{1}.assembly/final.contigs.fa \
+out=Assembly/stat/{1}.covstats.txt overwrite=true
+
+
+#gene prediction
+mkdir -p Predict/orf
+prodigal -i Assembly/sample/{1}.assembly/final.contigs.fa \
+-o Predict/orf/{1}.gene.gff \
+-a Predict/orf/{1}.gene.faa \
+-d Predict/orf/S{1}.gene.ffn \
+-f gff -g 11 -p meta
+
+mkdir -p Predict/clust
+cat Predict/orf/*.ffn > Predict/clust/all.gene.ffn.tmp
+awk '{if ($1~">") {
+    n+=1
+    print ">Unigene"n
+  } else {
+    print
+  }
+}' Predict/clust/all.gene.ffn.tmp > \
+Predict/clust/all.gene.ffn
+mmseqs createdb Predict/clust/all.gene.ffn Predict/clust/DB
+mmseqs linclust Predict/clust/DB \
+Predict/clust/DB_clu \
+Predict/clust/tmp \
+-k 0 -e 0.001 --min-seq-id 0.95 -c 0.9 --cluster-mode 0
+
+mmseqs createsubdb Predict/clust/DB_clu \
+Predict/clust/DB \
+Predict/clust/DB_clu_rep
+
+mmseqs convert2fasta Predict/clust/DB_clu_rep \
+Predict/clust/DB_clu_rep.fasta
+
+mmseqs createtsv Predict/clust/DB Predict/clust/DB_clu Predict/clust/query_linclust_cluster.tsv
+
+
+mkdir -p Predict/abundance
+mv Predict/clust/DB_clu_rep.fasta Predict/clust/gene_catalogue.ffn
+
+bwa index Predict/clust/gene_catalogue.ffn
+
+bwa mem -k 19 Predict/clust/gene_catalogue.ffn \
+QC/uniq/{1}.uniq.R1.fq QC/uniq/{1}.uniq.R2.fq > \
+Predict/abundance/{1}.sam
+
+pileup.sh in=Predict/abundance/{1}.sam \
+ref=Predict/clust/gene_catalogue.ffn \
+out=Predict/abundance/{1}.covstats.txt overwrite=true
