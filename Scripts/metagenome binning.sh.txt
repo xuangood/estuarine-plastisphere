@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Directories
+RAW_DATA_DIR="/path/to/raw/data"
+QC_DIR="/path/to/quality_control"
+ASSEMBLY_DIR="/path/to/assembly"
+BINNING_DIR="/path/to/binning"
+DAS_DIR="/path/to/das_tool"
+CHECKM_DIR="/path/to/checkm"
+
+# Software Paths
+FASTP="/usr/local/bin/fastp"
+MEGAHIT="/usr/local/bin/megahit"
+METABAT2="/usr/local/bin/metabat2"
+DAS_TOOL="/usr/local/bin/DAS_Tool"
+CHECKM="/usr/local/bin/checkm"
+
+# Metabat2 binning
+mkdir -p $BINNING_DIR
+$METABAT2 -i $ASSEMBLY_DIR/final.contigs.fa -o $BINNING_DIR/bins
+
+# DAS Tool for dereplication and quality assessment
+mkdir -p $DAS_DIR
+$DAS_TOOL -i $BINNING_DIR/*.fa -o $DAS_DIR/das_output -l metabat2 --write_bins 1
+
+# CheckM for quality evaluation of bins
+mkdir -p $CHECKM_DIR
+$CHECKM lineage_wf -x fa $BINNING_DIR $CHECKM_DIR --reduced_tree --threads 4
+
+echo "Metagenomic pipeline completed successfully!"
