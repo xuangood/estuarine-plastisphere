@@ -1,0 +1,27 @@
+	Nitrosospira		Nitrospira		Nitrosovibrio		Nitrosomonas	
+P	1.20255	0.01616	0.95767	0.00453	0.0614	0.00177	0.08672	0.02416
+W	0.02993	0.02087	0	0	5.77E-04	4.12E-04	1.57489	0.76376
+								
+	Nitrobacter		Nitrospira		Nirtrotoga		Nitrosomonas	
+P	0.13617	0.00638	0.26249	0.03992	0.00943	0.00208	0.01055	0.00685
+W	0.00423	0.00294	0.02724	0.01965	0.08416	0.03736	0.10433	0.05147
+								
+	Nitrospira defluvii		other Nitrospira spp.					
+P	0.17476	0.02064	0.45938	0.08796				
+W	0.02974	0.01623	0.11919	0.05753				
+								
+	Nitrosospira		Nitrospira		Nitrosomonas			
+P	0.02954	0.0046	0.08187	0.00826	0.01179	0.00152		
+W	0	0	0.02881	0.0141	0.05492	0.0303		
+								
+	Nitrosospira		Nitrospira					
+P	0.0145	0.00305	0.04943	0.007				
+W	5.16E-04	3.07E-04	0.00107	8.98E-04				
+								
+	norank_Proteobacteria		norank_Nitrospirae		Plasmodiophora			
+P	0.06305	0.00959	0.00362	0.00249	0.10332	0.00487		
+W	7.00E-04	8.30E-04	9.32E-05	1.32E-04	0.01385	0.01543		
+								
+	Nirtrotoga		Nitrosomonas					
+P	0	0	0	0				
+W	8.70E-04	3.62E-04	0.00139	0.00112				
